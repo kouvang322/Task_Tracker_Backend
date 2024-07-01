@@ -19,6 +19,8 @@ app.get('/', (req, res) => {
 
 });
 
+// dbFunctions.createTable();
+
 app.get('/api/data', async (req, res) => { // Make the handler async
   try {
     const tasksList = await dbFunctions.getAllTasks(); // Await the getAllTasks function
@@ -61,6 +63,15 @@ app.delete('/api/data/deleteTask/:id', async (req, res) => {
     message: 'task deleted'
   });
 });
+
+app.post('/LoginOrRegister/api/data/createUser', async (req, res) => {
+  const userToCreate = req.body.user;
+  const addedUser = await dbFunctions.addUser(userToCreate);
+  console.log(addedUser);
+  res.json({
+    addedUser
+  })
+})
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

@@ -15,6 +15,36 @@ const pool = new Pool({
 });
 
 
+// async function createTable() {
+//   const client = await pool.connect();
+
+//   try {
+//     await client.query('Begin');
+  
+//     await client.query(`
+//         CREATE TABLE IF NOT EXISTS "Tasks" (
+//           id SERIAL PRIMARY KEY,
+//           title VARCHAR(50) NOT NULL,
+//           description TEXT NOT NULL,
+//           priority VARCHAR(15) NOT NULL,
+//           user_id INTEGER NOT NULL
+//         );
+//       `);
+  
+      
+//       await client.query('COMMIT');
+//       console.log('Table created successfully');
+//     } catch (error) {
+//       await client.query('ROLLBACK');
+//       console.error('Error creating tables', error);
+//     } finally {
+//       client.release();
+//     }
+  
+//     createTable().catch(err => console.error('Error executing createTable', err));
+  
+// }
+
 async function createTable() {
   const client = await pool.connect();
 
@@ -22,12 +52,10 @@ async function createTable() {
     await client.query('Begin');
   
     await client.query(`
-        CREATE TABLE IF NOT EXISTS "Tasks" (
-          id SERIAL PRIMARY KEY,
-          title VARCHAR(50) NOT NULL,
-          description TEXT NOT NULL,
-          priority VARCHAR(15) NOT NULL,
-          user_id INTEGER NOT NULL
+        CREATE TABLE IF NOT EXISTS "Users" (
+          user_id SERIAL PRIMARY KEY,
+          userName VARCHAR(15) NOT NULL,
+          password VARCHAR(15) NOT NULL
         );
       `);
   
@@ -67,11 +95,6 @@ async function createNewTask(newTaskinfo) {
     taskDataToAdd.priority, 
     taskDataToAdd.user_id
   ];
-
-  // const queryGetCreatedTask = `
-  //   SELECT * FROM "Tasks"
-  //   Where 
-  // `;
 
   
   try {
@@ -156,6 +179,38 @@ async function deleteTask(taskId){
   
 }
 
+async function addUser(userToCreate) {
+  const client = await pool.connect();
+
+  const queryCreate = `
+    INSERT INTO "Users" (userName, password) 
+    VALUES($1, $2)
+    RETURNING *
+  `;
+
+  const userDataToAdd = {
+    userName: userToCreate.userName,
+    password: userToCreate.password
+  };
+
+  const values = [
+    userDataToAdd.userName, 
+    userDataToAdd.password
+  ];
+  
+  try {
+    const res = await client.query(queryCreate, values);
+    // createdTask = res.rows[0];
+    console.log('User created:', res.rows[0]);
+    return res.rows[0];
+  } catch (err) {
+    console.error('Error inserting user:', err);
+  } finally {
+    client.release();
+  }
+  
+}
+
 
 module.exports = {
   createTable,
@@ -163,4 +218,5 @@ module.exports = {
   getAllTasks,
   updateTask,
   deleteTask,
+  addUser,
 }
