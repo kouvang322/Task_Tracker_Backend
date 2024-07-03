@@ -1,5 +1,5 @@
 require('dotenv').config();
-
+const jwt = require('jsonwebtoken');
 
 const express = require('express');
 const cors = require('cors');
@@ -64,14 +64,45 @@ app.delete('/api/data/deleteTask/:id', async (req, res) => {
   });
 });
 
-app.post('/LoginOrRegister/api/data/createUser', async (req, res) => {
-  const userToCreate = req.body.user;
-  const addedUser = await dbFunctions.addUser(userToCreate);
+app.post('/LoginOrRegister/api/data/register', async (req, res) => {
+  const newUsernameInput = req.body.newUsername;
+  const newPasswordInput = req.body.newPassword;
+  const addedUser = await dbFunctions.addUser(newUsernameInput, newPasswordInput);
+
   console.log(addedUser);
+
   res.json({
     addedUser
   })
 })
+
+app.post('/LoginOrRegister/api/data/login/user', async (req, res) => {
+  try {
+    const loginUserName = req.body.username;
+    const loginPassword = req.body.password;
+    // console.log(loginUserName);
+    // console.log(loginPassword);
+
+    const result = await dbFunctions.checkForUserData(loginUserName, loginPassword);
+
+    console.log(result);
+
+    if (result.success) {
+      const token = jwt.sign({ userId: result.userLoggedIn.userid }, 'your-secret-key', { expiresIn: '1h' });
+
+      res.status(200).json({ 
+        message: result.message,
+        token: token 
+      });
+      
+    } else {
+      res.status(401).json({ message: result.message });
+    }
+  } catch (error) {
+    console.error('Error during login', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

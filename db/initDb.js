@@ -1,4 +1,6 @@
+const bcrypt = require('bcrypt');
 const { Pool } = require('pg');
+const saltRounds = 10;
 
 let { PGHOST, PGDATABASE, PGUSER, PGPASSWORD } = process.env;
 
@@ -55,7 +57,7 @@ async function createTable() {
         CREATE TABLE IF NOT EXISTS "Users" (
           user_id SERIAL PRIMARY KEY,
           userName VARCHAR(15) NOT NULL,
-          password VARCHAR(15) NOT NULL
+          password TEXT NOT NULL
         );
       `);
   
@@ -179,8 +181,23 @@ async function deleteTask(taskId){
   
 }
 
-async function addUser(userToCreate) {
+async function hashPassword(password){
+  try {
+    const salt = await bcrypt.genSalt(saltRounds);
+    const hash = await bcrypt.hash(password, salt);
+    return hash;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+async function addUser(newUsernameInput, newPasswordInput) {
   const client = await pool.connect();
+
+  const hashedPassword = await hashPassword(newPasswordInput);
+
+  console.log(hashedPassword);
 
   const queryCreate = `
     INSERT INTO "Users" (userName, password) 
@@ -189,8 +206,8 @@ async function addUser(userToCreate) {
   `;
 
   const userDataToAdd = {
-    userName: userToCreate.userName,
-    password: userToCreate.password
+    userName: newUsernameInput,
+    password: hashedPassword,
   };
 
   const values = [
@@ -211,6 +228,40 @@ async function addUser(userToCreate) {
   
 }
 
+async function checkForUserData(loginUserName, loginPassword){
+  const client = await pool.connect();
+
+  // console.log(loginUserName);
+
+  const querySearchUser = `
+    SELECT username, password
+    FROM "Users"
+    WHERE username = $1
+  `
+
+  try {
+    const res = await client.query(querySearchUser, [loginUserName]);
+
+    if(res.rows.length === 0){
+      return {success: false, message: "User not found."}
+    }
+
+    const user = res.rows[0];
+    const passwordMatch = await bcrypt.compare(loginPassword, user.password);
+
+    if (passwordMatch) {
+      return { success: true, message: 'Login successful', userLoggedIn: user };
+    } else {
+      return { success: false, message: 'Incorrect password' };
+    }
+
+  } catch (error) {
+    console.error('No existing user', error);
+  }finally{
+    client.release();
+  }
+}
+
 
 module.exports = {
   createTable,
@@ -219,4 +270,5 @@ module.exports = {
   updateTask,
   deleteTask,
   addUser,
+  checkForUserData,
 }
