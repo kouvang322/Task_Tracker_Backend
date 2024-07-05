@@ -75,7 +75,7 @@ async function createTable() {
   
 }
 
-async function createNewTask(newTaskinfo) {
+async function createNewTask(newTaskinfo, loggedinUserId) {
   const client = await pool.connect();
 
   const queryCreate = `
@@ -88,7 +88,7 @@ async function createNewTask(newTaskinfo) {
     title: newTaskinfo.title,
     description: newTaskinfo.description,
     priority: newTaskinfo.priority,
-    user_id: 1
+    user_id: loggedinUserId
   };
 
   const values = [
@@ -112,14 +112,13 @@ async function createNewTask(newTaskinfo) {
   
 }
 
-async function getAllTasks() {
+async function getAllTasks(user_id) {
   const client = await pool.connect();
-  // create new query to grab all data
-      //select * from
   // assign res to the query that will be executed
 
   const getAllTaskQuery = `
     SELECT * FROM "Tasks"
+    WHERE user_id = '${user_id}'
   `;
 
   // create an empty array to set the retrieved data to
@@ -234,7 +233,7 @@ async function checkForUserData(loginUserName, loginPassword){
   // console.log(loginUserName);
 
   const querySearchUser = `
-    SELECT username, password
+    SELECT user_Id, username, password
     FROM "Users"
     WHERE username = $1
   `
