@@ -7,7 +7,7 @@ const dbFunctions = require('./db/initDb')
 const app = express();
 const port = 3000;
 
-const jwtSecret = process.env.JWT_Secret;
+// const jwtSecret = process.env.JWT_Secret;
 
 // dbFunctions.createTask();
 
@@ -25,6 +25,8 @@ app.get('/', (req, res) => {
 
 app.get('/Dashboard/api/data/:id', async (req, res) => { // Make the handler async
   const user_id = req.params.id
+  console.log(user_id);
+
   try {
     const tasksList = await dbFunctions.getAllTasks(user_id); // Await the getAllTasks function
     res.json(tasksList); // Send the tasks as JSON response
@@ -51,12 +53,21 @@ app.patch('/Dashboard/api/data/updateTask', async (req, res) => {
   // const taskId = req.body.task.id;
   // console.log(taskId)
   const updatedData = req.body.task;
-  console.log(updatedData);
-  const updatedTask = await dbFunctions.updateTask(updatedData)
-  res.json({    
-    updatedTask,
-    message: 'task updated'
-  });
+  const loggedInUserId = req.body.user_id;
+  console.log(loggedInUserId);
+  console.log(updatedData.user_id);
+
+  if(loggedInUserId === updatedData.user_id){
+    const updatedTask = await dbFunctions.updateTask(updatedData, loggedInUserId)
+    res.json({    
+      updatedTask,
+      message: 'task updated'
+    });
+  }else{
+    res.json({
+      message: "user not authorized"
+    })
+  }
 });
 
 
@@ -92,9 +103,12 @@ app.post('/LoginOrRegister/api/data/login/user', async (req, res) => {
     console.log(result);
 
     if (result.success) {
-      const token = jwt.sign({ userId: result.userLoggedIn.userid }, jwtSecret, { expiresIn: '1h' });
+      // const token = jwt.sign({ userId: result.userLoggedIn.userid }, jwtSecret, { expiresIn: '1h' });
 
-      res.status(200).json(result.userLoggedIn);
+      res.status(200).json({
+          username: result.userLoggedInName, 
+          user_id: result.userLoggedInId
+      });
       
     } else {
       res.status(401).json({ message: result.message });

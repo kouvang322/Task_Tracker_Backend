@@ -127,16 +127,16 @@ async function getAllTasks(user_id) {
     const res = await client.query(getAllTaskQuery);
     tasks = res.rows;  // res.rows is already an array of tasks
     // console.log('Tasks retrieved:', tasks);
+    return tasks;
   } catch (err) {
     console.error('Error retrieving tasks:', err);
   } finally {
     client.release();
   }
   //return response 
-  return tasks;
 }
 
-async function updateTask(task){
+async function updateTask(task, loggedInUserId){
   const client = await pool.connect();
   console.log(task);
   
@@ -148,6 +148,7 @@ async function updateTask(task){
   const queryGetNewTaskInfo = `
     SELECT * FROM "Tasks"
     WHERE id = ${task.id}
+      AND user_id = ${loggedInUserId}
   `
   
   let updatedItem = [];
@@ -249,7 +250,7 @@ async function checkForUserData(loginUserName, loginPassword){
     const passwordMatch = await bcrypt.compare(loginPassword, user.password);
 
     if (passwordMatch) {
-      return { success: true, message: 'Login successful', userLoggedIn: user };
+      return { success: true, message: 'Login successful', userLoggedInName: user.username, userLoggedInId: user.user_id};
     } else {
       return { success: false, message: 'Incorrect password' };
     }
