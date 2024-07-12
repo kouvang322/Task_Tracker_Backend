@@ -5,14 +5,15 @@ const express = require('express');
 const cors = require('cors');
 const dbFunctions = require('./db/initDb')
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // const jwtSecret = process.env.JWT_Secret;
 
 // dbFunctions.createTask();
 
 app.use(cors({
-  origin: 'http://localhost:4200' // Angular dev server
+  // origin: 'http://localhost:4200' // Angular dev server
+  origin: 'https://tasktracking-app.netlify.app' // Angular dev server
 }));
 app.use(express.json()); // To parse JSON bodies
 
@@ -120,6 +121,7 @@ app.post('/LoginOrRegister/api/data/login/user', async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-
+  // console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on ${port}`);
+  
 });
