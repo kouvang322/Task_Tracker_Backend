@@ -15,18 +15,26 @@ app.use(cors({
   // origin: 'http://localhost:4200' // Angular dev server
   origin: 'https://tasktracking-app.netlify.app' // Angular dev server
 }));
-app.use(express.json()); // To parse JSON bodies
+
+// app.use(cors({
+//   origin: 'https://tasktracking-app.netlify.app', // Your frontend URL
+//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+//   credentials: true, // If you need to allow cookies
+//   optionsSuccessStatus: 204
+// }));
+
+app.use(express.json());
 
 app.get('/', (req, res) => {
   res.json({ message: 'Hello World!' });
 
 });
 
-app.use(express.static(path.join(__dirname, 'dist/task-tracker')));
+// app.use(express.static(path.join(__dirname, 'dist/task-tracker')));
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist/task-tracker/index.html'));
-});
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'dist/task-tracker/index.html'));
+// });
 
 // dbFunctions.createTable();
 
