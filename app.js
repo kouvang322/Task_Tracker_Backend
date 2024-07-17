@@ -10,9 +10,9 @@ const port = process.env.PORT || 3000;
 // dbFunctions.createTask();
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL.split(','),
+  origin: ['http://localhost:4200', 'https://tasktracking-app.netlify.app'],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
+  credentials: true, // enable set cookie
   optionsSuccessStatus: 204
 }));
 
@@ -66,13 +66,13 @@ app.patch('/Dashboard/api/data/updateTask', async (req, res) => {
   console.log(loggedInUserId);
   console.log(updatedData.user_id);
 
-  if(loggedInUserId === updatedData.user_id){
+  if (loggedInUserId === updatedData.user_id) {
     const updatedTask = await dbFunctions.updateTask(updatedData, loggedInUserId)
-    res.json({    
+    res.json({
       updatedTask,
       message: 'task updated'
     });
-  }else{
+  } else {
     res.json({
       message: "user not authorized"
     })
@@ -115,10 +115,10 @@ app.post('/LoginOrRegister/api/data/login/user', async (req, res) => {
       // const token = jwt.sign({ userId: result.userLoggedIn.userid }, jwtSecret, { expiresIn: '1h' });
 
       res.status(200).json({
-          username: result.userLoggedInName, 
-          user_id: result.userLoggedInId
+        username: result.userLoggedInName,
+        user_id: result.userLoggedInId
       });
-      
+
     } else {
       res.status(401).json({ message: result.message });
     }
@@ -131,5 +131,5 @@ app.post('/LoginOrRegister/api/data/login/user', async (req, res) => {
 app.listen(port, () => {
   // console.log(`Server is running on http://localhost:${port}`);
   console.log(`Server is running on ${port}`);
-  
+
 });
