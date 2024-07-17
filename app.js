@@ -19,15 +19,9 @@ app.use(cors({
 
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.json({ message: 'Hello World!' });
+// app.get('/', (req, res) => {
+//   res.json({ message: 'Hello World!' });
 
-});
-
-// app.use(express.static(path.join(__dirname, 'dist/task-tracker')));
-
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'dist/task-tracker/index.html'));
 // });
 
 // dbFunctions.createTable();
