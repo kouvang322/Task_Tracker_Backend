@@ -27,7 +27,7 @@ app.get('/', (req, res) => {
 
 // dbFunctions.createTable();
 
-app.get('/Dashboard/api/data/:id', async (req, res) => { // Make the handler async
+app.get('/dashboard/api/data/:id', async (req, res) => { // Make the handler async
   const user_id = req.params.id
   console.log(user_id);
 
@@ -42,7 +42,7 @@ app.get('/Dashboard/api/data/:id', async (req, res) => { // Make the handler asy
 });
 
 
-app.post('/Dashboard/api/data/createTask', async (req, res) => {
+app.post('/dashboard/api/data/createTask', async (req, res) => {
   const newTaskinfo = req.body.newTask;
   const loggedinUserId = req.body.userId;
   try {
@@ -53,7 +53,7 @@ app.post('/Dashboard/api/data/createTask', async (req, res) => {
   }
 });
 
-app.patch('/Dashboard/api/data/updateTask', async (req, res) => {
+app.patch('/dashboard/api/data/updateTask', async (req, res) => {
   // const taskId = req.body.task.id;
   // console.log(taskId)
   const updatedData = req.body.task;
@@ -75,7 +75,7 @@ app.patch('/Dashboard/api/data/updateTask', async (req, res) => {
 });
 
 
-app.delete('/Dashboard/api/data/deleteTask/:id', async (req, res) => {
+app.delete('/dashboard/api/data/deleteTask/:id', async (req, res) => {
   const taskId = req.params.id;
   await dbFunctions.deleteTask(taskId);
   res.json({
@@ -83,7 +83,7 @@ app.delete('/Dashboard/api/data/deleteTask/:id', async (req, res) => {
   });
 });
 
-app.post('/LoginOrRegister/api/data/register', async (req, res) => {
+app.post('/loginOrRegister/api/data/register', async (req, res) => {
   const newUsernameInput = req.body.username;
   const newPasswordInput = req.body.password;
   const addedUser = await dbFunctions.addUser(newUsernameInput, newPasswordInput);
@@ -95,7 +95,7 @@ app.post('/LoginOrRegister/api/data/register', async (req, res) => {
   })
 })
 
-app.post('/LoginOrRegister/api/data/login/user', async (req, res) => {
+app.post('/loginOrRegister/api/data/login/user', async (req, res) => {
   try {
     const loginUserName = req.body.username;
     const loginPassword = req.body.password;
