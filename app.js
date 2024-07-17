@@ -7,21 +7,15 @@ const dbFunctions = require('./db/initDb')
 const app = express();
 const port = process.env.PORT || 3000;
 
-// const jwtSecret = process.env.JWT_Secret;
-
 // dbFunctions.createTask();
 
 app.use(cors({
-  // origin: 'http://localhost:4200' // Angular dev server
-  origin: 'https://tasktracking-app.netlify.app' // Angular dev server
+  origin: process.env.FRONTEND_URL.split(','),
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204
 }));
 
-// app.use(cors({
-//   origin: 'https://tasktracking-app.netlify.app', // Your frontend URL
-//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-//   credentials: true, // If you need to allow cookies
-//   optionsSuccessStatus: 204
-// }));
 
 app.use(express.json());
 
