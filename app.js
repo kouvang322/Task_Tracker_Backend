@@ -24,6 +24,10 @@ app.get('/', (req, res) => {
 
 });
 
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist/Task_Tracker/index.html'));
+});
+
 // dbFunctions.createTable();
 
 app.get('/Dashboard/api/data/:id', async (req, res) => { // Make the handler async
