@@ -192,40 +192,73 @@ async function hashPassword(password){
   }
 };
 
-async function addUser(newUsernameInput, newPasswordInput) {
+async function checkForExistingUser(newUsernameInput){
   const client = await pool.connect();
 
-  const hashedPassword = await hashPassword(newPasswordInput);
-
-  console.log(hashedPassword);
-
-  const queryCreate = `
-    INSERT INTO "Users" (userName, password) 
-    VALUES($1, $2)
-    RETURNING *
+  const queryCompareName =`
+    SELECT username
+    FROM "Users"
+    WHERE username = $1
   `;
 
-  const userDataToAdd = {
-    userName: newUsernameInput,
-    password: hashedPassword,
-  };
-
-  const values = [
-    userDataToAdd.userName, 
-    userDataToAdd.password
-  ];
-  
   try {
-    const res = await client.query(queryCreate, values);
-    // createdTask = res.rows[0];
-    console.log('User created:', res.rows[0]);
-    return res.rows[0];
-  } catch (err) {
-    console.error('Error inserting user:', err);
-  } finally {
+    const res = await client.query(queryCompareName, [newUsernameInput]);
+    if(res.rows.length === 0){
+      return { userFound: false }
+    }else{
+      return { userFound: true }
+    }
+  } catch (error) {
+    console.error("Error in checking for existing user", error);
+    throw error;
+  }finally{
     client.release();
   }
+}
+
+async function addUser(newUsernameInput, newPasswordInput) {
+  const userAlreadyExists = await checkForExistingUser(newUsernameInput);
+
+  console.log(userAlreadyExists);
+
+  if (userAlreadyExists.userFound) {
+    console.log("Username not available");
+    return false;
+  } else {
+    const client = await pool.connect();
   
+    const hashedPassword = await hashPassword(newPasswordInput);
+  
+    console.log(hashedPassword);
+  
+    const queryCreate = `
+      INSERT INTO "Users" (userName, password) 
+      VALUES($1, $2)
+      RETURNING *
+    `;
+  
+    const userDataToAdd = {
+      userName: newUsernameInput,
+      password: hashedPassword,
+    };
+  
+    const values = [
+      userDataToAdd.userName, 
+      userDataToAdd.password
+    ];
+    
+    try {
+      const res = await client.query(queryCreate, values);
+      // createdTask = res.rows[0];
+      console.log('User created:', res.rows[0]);
+      return true;
+    } catch (err) {
+      console.error('Error inserting user:', err);
+      return false;
+    } finally {
+      client.release();
+    }
+  }
 }
 
 async function checkForUserData(loginUserName, loginPassword){

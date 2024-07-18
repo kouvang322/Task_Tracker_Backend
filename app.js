@@ -86,13 +86,13 @@ app.delete('/dashboard/api/data/deleteTask/:id', async (req, res) => {
 app.post('/loginOrRegister/api/data/register', async (req, res) => {
   const newUsernameInput = req.body.username;
   const newPasswordInput = req.body.password;
-  const addedUser = await dbFunctions.addUser(newUsernameInput, newPasswordInput);
+  const canCreateUser = await dbFunctions.addUser(newUsernameInput, newPasswordInput);
 
-  console.log(addedUser);
+  console.log(canCreateUser);
 
-  res.json({
-    addedUser
-  })
+  res.json(
+    canCreateUser
+  )
 })
 
 app.post('/loginOrRegister/api/data/login/user', async (req, res) => {
@@ -115,11 +115,11 @@ app.post('/loginOrRegister/api/data/login/user', async (req, res) => {
       });
       
     } else {
-      res.status(401).json({ message: result.message });
+      res.status(401).json(result.message);
     }
   } catch (error) {
     console.error('Error during login', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json('Internal server error');
   }
 });
 
