@@ -110,12 +110,13 @@ app.post('/loginOrRegister/api/data/login/user', async (req, res) => {
       // const token = jwt.sign({ userId: result.userLoggedIn.userid }, jwtSecret, { expiresIn: '1h' });
 
       res.status(200).json({
+          success: result.success,
           username: result.userLoggedInName, 
           user_id: result.userLoggedInId
       });
       
     } else {
-      res.status(401).json(result.message);
+      res.json(result);
     }
   } catch (error) {
     console.error('Error during login', error);
